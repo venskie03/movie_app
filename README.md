@@ -2,15 +2,28 @@
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
+## Live Demo
+
+You can download the live demo of the app [here](https://www.mediafire.com/file/exxly4kpspzoyrb/MovieApp.apk/file).
+
 ## Get started
 
-1. Install dependencies
+1. Clone the App
+
+ ```bash
+   git clone https://github.com/venskie03/movie_app.git
+   ```
+2. Move to the project
+
+  ```bash
+   cd movie_app
+   ```
+3. Install dependencies
 
    ```bash
    npm install
    ```
-
-2. Start the app
+4. Start the app
 
    ```bash
     npx expo start
