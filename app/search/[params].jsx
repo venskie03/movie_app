@@ -46,7 +46,7 @@ const Searchmovies = () => {
       </View>
 
         <View className="flex-1 p-3">
-        <Text style={{fontFamily: 'PoppinsMedium'}} className="text-white mt-2">Search Results of <Text className="text-red-400">{params}</Text></Text>
+        <Text style={{fontFamily: 'PoppinsMedium'}} className="text-white text-lg mt-2">Search Results of <Text className="text-yellow-300">{params}</Text></Text>
 
         <ScrollView>
           <View className="flex flex-wrap flex-row justify-between">

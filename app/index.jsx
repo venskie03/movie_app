@@ -21,10 +21,9 @@ const index = () => {
   const [nowplayingMovies, setNowplayingMovies] = useState([]);
   const [moviesGenre, setMoviesGenre] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
+  const [topRatedMovies, setTopRatedMovies] = useState([])
   const router = useRouter();
   const [inputValue, setInputValue] = useState('');
-  const [selectedValue, setSelectedValue] = useState("java");
-  const [expanded, setExpanded] = useState(false);
 
   const getNowPlayingMovies = async () => {
     try {
@@ -34,6 +33,15 @@ const index = () => {
       console.log(error);
     }
   };
+
+  const handleTopRatedMovies = async () => {
+    try {
+      const response = await API.getToprated()
+      setTopRatedMovies(response.data.results)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const getPopularMovies = async () => {
     try {
@@ -57,11 +65,10 @@ const index = () => {
     getNowPlayingMovies();
     getMoviesGenres();
     getPopularMovies();
+    handleTopRatedMovies();
   }, []);
 
-  const toggleExpanded = () => {
-    setExpanded((prev) => !prev); // Toggle between true and false
-  };
+
 
   const handleSearchMovies = () =>{
     router.push(`/search/${inputValue}`)
@@ -72,54 +79,17 @@ const index = () => {
       <View className="flex-1 bg-slate-900">
         <View className="flex-row items-end  justify-between pl-3 pr-3 h-20 ">
        <Pressable onPress={()=> router.push('/')}>
-       <View className="flex-row items-center justify-center gap-1">
-            <MaterialIcons name="movie" size={20} color="white" />
+       <View className="flex-row items-center justify-center gap-0.5">
+            <MaterialIcons name="movie" size={20} color="yellow" />
             <Text
               style={{ fontFamily: "PoppinsMedium" }}
-              className="text-white"
+              className="text-white text-xl"
             >
-              MovieFlex
+             <Text className="text-yellow-300"> Movie</Text>Night
             </Text>
           </View>
        </Pressable>
-          <View className="flex">
-            <Pressable onPress={toggleExpanded}>
-              <View className="border border-gray-300 rounded h-8 flex-row items-center w-24 justify-between p-1 pl-2 pr-2">
-                <Text
-                  style={{ fontFamily: "PoppinsMedium" }}
-                  className="text-white"
-                >
-                  Genre
-                </Text>
-                <AntDesign
-                  name={expanded ? "caretup" : "caretdown"}
-                  size={15}
-                  color="white"
-                />
-              </View>
-            </Pressable>
-            {expanded ? (
-              <View className="absolute z-30 top-9 w-24 bg-gray-600 right-0 h-60 rounded-md p-2">
-                <FlatList
-                  keyExtractor={(item) => item.name}
-                  data={moviesGenre}
-                  renderItem={({ item }) => (
-                    <TouchableOpacity onPress={()=> router.push(`/genres/${item.id}`)}>
-                      <Text
-                        className="text-white"
-                        style={{ fontFamily: "PoppinsMedium" }}
-                      >
-                        {item.name}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                  ItemSeparatorComponent={() => <View className="h-5" />}
-                  contentContainerStyle={{ paddingVertical: 10 }} // Optional: adds padding to the list
-                  showsVerticalScrollIndicator={false} // Optional: hides the scroll indicator
-                />
-              </View>
-            ) : null}
-          </View>
+   
         </View>
 
         <View className="flex-1 p-3">
@@ -128,18 +98,27 @@ const index = () => {
             <TextInput
               className="flex-1 pl-2 text-white"
               placeholderTextColor={"gray"}
-              placeholder="Search"
+              placeholder="Search your movies here..."
               onChangeText={setInputValue}
               onSubmitEditing={handleSearchMovies}
             />
           </View>
 
           <View className="flex-1">
+            <ScrollView horizontal className="mt-2 mb-2">
+           <View className="flex-row gap-2">
+           {moviesGenre.map((item, index)=>(
+                <Pressable key={index} onPress={()=> router.push(`/genres/${item.id}`)} className="bg-gray-700 rounded-md p-2 pl-3 pr-3">
+                <Text  style={{ fontFamily: "PoppinsMedium" }} className="text-white">{item.name}</Text>
+              </Pressable>
+              ))}
+           </View>
+            </ScrollView>
             <ScrollView contentContainerStyle={{ paddingVertical: 20 }}>
               <View className="nowplaying">
                 <Text
                   style={{ fontFamily: "PoppinsMedium" }}
-                  className="text-white text-md"
+                  className="text-yellow-300 text-md"
                 >
                   NowPlaying Movies
                 </Text>
@@ -188,12 +167,62 @@ const index = () => {
               <View className="popular mt-3">
                 <Text
                   style={{ fontFamily: "PoppinsMedium" }}
-                  className="text-white text-md"
+                  className="text-yellow-300 text-md"
                 >
                   Popular Movies
                 </Text>
                 <ScrollView horizontal={true}>
                   {popularMovies.map((movie, index) => (
+                    <Pressable
+                      onPress={() => router.push(`/overview/${movie.id}`)}
+                      key={index}
+                    >
+                      <View className="m-1 flex-2 w-40 overflow-hidden">
+                        <Image
+                          className="w-40 h-56 rounded-md"
+                          source={{ uri: `${imgUrl}${movie.poster_path}` }}
+                        />
+                        <View className="flex-row">
+                          <Text
+                            style={{ fontFamily: "PoppinsMedium" }}
+                            className="text-white mt-1"
+                            numberOfLines={1} // Limit to 1 line
+                            ellipsizeMode="tail" // Add ellipsis if the text overflows
+                          >
+                            {movie.original_title}
+                          </Text>
+                        </View>
+                        <View className="flex-row ">
+                          {movie.genre_ids.map((genreID, genreIndex) => {
+                            const genre = moviesGenre.find(
+                              (g) => g.id === genreID
+                            );
+                            return genre ? (
+                              <Text
+                                key={genreIndex}
+                                style={{ fontFamily: "PoppinsMedium" }}
+                                className="text-gray-400 mr-1"
+                              >
+                                {genre.name},
+                              </Text>
+                            ) : null; // Handle case where genre might not be found
+                          })}
+                        </View>
+                      </View>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+
+              <View className="popular mt-3">
+                <Text
+                  style={{ fontFamily: "PoppinsMedium" }}
+                  className="text-yellow-300 text-md"
+                >
+                  Toprated Movies
+                </Text>
+                <ScrollView horizontal={true}>
+                  {topRatedMovies.map((movie, index) => (
                     <Pressable
                       onPress={() => router.push(`/overview/${movie.id}`)}
                       key={index}

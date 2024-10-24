@@ -58,12 +58,12 @@ const Genresmovies = () => {
       </View>
 
         <View className="flex-1 p-3">
-        <Text style={{fontFamily: 'PoppinsMedium'}} className="text-white mt-2">Results of Genre <Text className="text-red-400">
+        <Text style={{fontFamily: 'PoppinsMedium'}} className="text-white text-lg mt-2">Results of Genre <Text className="text-yellow-300">
         {genreName}
             </Text></Text>
 
         <ScrollView>
-          <View className="flex flex-wrap flex-row justify-between">
+          <View className="flex flex-wrap flex-row justify-between mt-3">
           {movies?.map((movie, index) => (
                     <Pressable
                       onPress={() => router.push(`/overview/${movie.id}`)}

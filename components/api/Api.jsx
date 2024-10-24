@@ -39,4 +39,5 @@ export const API = {
     getMovieDetails: (id) => apiHelper(MovieApi.getMoviedetails(id), "GET"),
     getMovieByGenre: (id) => apiHelper(MovieApi.getMoviesByGenre(id), "GET"),
     searchMovies: (params) => apiHelper(MovieApi.searchMoviesByName(params), "GET"),
+    getToprated: ()=> apiHelper(MovieApi.getTopratedMovies, "GET"),
 };

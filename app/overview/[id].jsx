@@ -4,6 +4,9 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { API } from '../../components/api/Api';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import {LinearGradient} from "expo-linear-gradient"
+import AntDesign from '@expo/vector-icons/AntDesign';
+
 
 const Movieoverview = () => {
   const { id } = useLocalSearchParams();
@@ -11,6 +14,7 @@ const Movieoverview = () => {
   const imgUrl = "https://image.tmdb.org/t/p/w500";
   const [movieImage, setMovieImage] = useState("")
   const [recommendedMovies, setRecommendedMovies] = useState([])
+  const [handleSecondRecommended, setSecondRecommended] = useState([])
   const [moviesGenre, setMoviesGenre] = useState([]);
   const router = useRouter()
 
@@ -29,6 +33,7 @@ const Movieoverview = () => {
       setMovieDetails(response.data)
       console.log("ID RECOMENDATIONS", response.data.genres[0].id)
       handleRecomentdedMovies(response.data.genres[0].id)
+      handleSecondRecomentdedMovies(response.data.genres[1].id)
       setMovieImage(response.data.backdrop_path)
     } catch (error) {
       console.log(error)
@@ -46,6 +51,16 @@ const Movieoverview = () => {
     }
   }
 
+  const handleSecondRecomentdedMovies = async (id) =>{
+
+    try {
+      const response = await API.getMovieByGenre(id)
+      setSecondRecommended(response.data.results)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   useEffect(()=>{
     handleMovieDetails();
     getMoviesGenres();
@@ -55,19 +70,27 @@ const Movieoverview = () => {
     <SafeAreaView className="flex-1 bg-slate-900">
        <ScrollView>
       <View className="h-56 bg-gray-500">
-      <Pressable className="flex-row  top-9 p-2 gap-1 absolute z-30" onPress={()=>router.push('/')}>
-      <View  className="flex-row items-center  gap-1">
-        <Ionicons name="chevron-back" size={24} color="white" />
-        <Text
-                style={{ fontFamily: "PoppinsMedium" }}
-                className="text-white text-md mt-4"
-              >
-               Home
-              </Text>
+      <Pressable className="flex-row  top-9  p-2 absolute z-30" onPress={()=>router.push('/')}>
+      <View  className="flex-row   p-1 pl-1 pr-1 rounded-lg ">
+        <Ionicons name="chevron-back" size={25} color="white" />
         </View>
       </Pressable>
-        <Image style={{opacity: 0.5}} className="w-full object-cover h-full" source={{uri: `${imgUrl}${movieImage}`}}/>
-        <Pressable className="absolute right-40 top-24" onPress={()=>router.push(`/player/${id}`)}>
+
+      <Pressable className="flex-row  top-10 p-2  right-4 absolute z-30" onPress={()=>router.push('/')}>
+      <View  className="flex-row items-center ">
+      <AntDesign name="hearto" size={25} color="yellow" />
+        </View>
+      </Pressable>
+        <Image  className="w-full object-cover h-72" source={{uri: `${imgUrl}${movieImage}`}}/>
+
+        <LinearGradient
+        // Button Linear Gradient
+        colors={['transparent', 'rgba(23,23,23, 0.7)', 'rgba(23,23,23, 1)']}
+        className="h-60 absolute w-full bottom-[-72]"
+         >
+      </LinearGradient>
+
+        <Pressable className="absolute right-40 top-28" onPress={()=>router.push(`/player/${id}`)}>
         <FontAwesome name="play" size={44} color="white" />
         </Pressable>
        
@@ -80,7 +103,7 @@ const Movieoverview = () => {
        <View >
        <Text onPress={()=>console.log(movieDetails.genres)}
                 style={{ fontFamily: "PoppinsMedium" }}
-                className="text-white text-md"
+                className="text-yellow-300 text-lg w-48"
               >
                {movieDetails.original_title}
               </Text>
@@ -102,8 +125,8 @@ const Movieoverview = () => {
               >
                {movieDetails.popularity} watched
               </Text>
-              <View className=" flex-row flex-wrap w-full gap-1">
-        {movieDetails.genres?.map((genre, index) => (
+              <View className=" flex-row flex-wrap w-48 gap-1">
+        {movieDetails?.genres?.map((genre, index) => (
           <Text
             key={index}
             className="text-gray-400"
@@ -118,7 +141,7 @@ const Movieoverview = () => {
       }
            <Text
                 style={{ fontFamily: "PoppinsMedium" }}
-                className="text-white text-lg mt-4"
+                className="text-yellow-300 text-lg mt-4"
               >
                Overview
               </Text>
@@ -128,12 +151,12 @@ const Movieoverview = () => {
                 <View>
                 <Text
                 style={{ fontFamily: "PoppinsMedium" }}
-                className="text-white text-lg mt-4"
+                className="text-yellow-300 text-lg mt-4"
               >
                Recommended
               </Text>
               <ScrollView horizontal={true}>
-                {recommendedMovies.map((movie, index) => (
+                {recommendedMovies?.map((movie, index) => (
                   <Pressable onPress={()=>router.push(`/overview/${movie.id}`)} key={index}>
                     <View className="m-1 flex-2 w-40 overflow-hidden">
                       <Image
@@ -151,7 +174,45 @@ const Movieoverview = () => {
                         </Text>
                       </View>
                       <View className="flex-row ">
-                        {movie.genre_ids.map((genreID, genreIndex) => {
+                        {movie?.genre_ids?.map((genreID, genreIndex) => {
+                          const genre = moviesGenre.find(
+                            (g) => g.id === genreID
+                          );
+                          return genre ? (
+                            <Text
+                              key={genreIndex}
+                              style={{ fontFamily: "PoppinsMedium" }}
+                              className="text-gray-400 mr-1"
+                            >
+                              {genre.name},
+                            </Text>
+                          ) : null; // Handle case where genre might not be found
+                        })}
+                      </View>
+                    </View>
+                  </Pressable>
+                ))}
+              </ScrollView>
+              <ScrollView horizontal={true} className="mt-1">
+                {handleSecondRecommended?.map((movie, index) => (
+                  <Pressable onPress={()=>router.push(`/overview/${movie.id}`)} key={index}>
+                    <View className="m-1 flex-2 w-40 overflow-hidden">
+                      <Image
+                        className="w-40 h-56 rounded-md"
+                        source={{ uri: `${imgUrl}${movie.poster_path}` }}
+                      />
+                      <View className="flex-row">
+                        <Text
+                          style={{ fontFamily: "PoppinsMedium" }}
+                          className="text-white mt-1"
+                          numberOfLines={1} // Limit to 1 line
+                          ellipsizeMode="tail" // Add ellipsis if the text overflows
+                        >
+                          {movie.original_title}
+                        </Text>
+                      </View>
+                      <View className="flex-row ">
+                        {movie?.genre_ids?.map((genreID, genreIndex) => {
                           const genre = moviesGenre.find(
                             (g) => g.id === genreID
                           );
